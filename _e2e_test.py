@@ -65,6 +65,8 @@ with app.test_client() as client:
         "previous_medications": "",
     }, follow_redirects=True)
     check("create patient", r.status_code == 200 and b"Test Patient" in r.data)
+    # IDs are never assumed: with demo seeding on, other rows may exist first.
+    patient_id = re.search(r"/patients/(\d+)", r.request.path).group(1)
 
     r = client.post("/medicines/new", data={
         "csrf_token": csrf, "generic_name": "Cefixime", "brand_name": "Cefix",
@@ -74,7 +76,7 @@ with app.test_client() as client:
     check("create medicine", r.status_code == 200 and b"Cefixime" in r.data)
 
     r = client.post("/prescriptions/new", data={
-        "csrf_token": csrf, "patient_id": "1", "visit_id": "",
+        "csrf_token": csrf, "patient_id": patient_id, "visit_id": "",
         "prescription_date": "2026-10-01", "weight": "70 kg",
         "generic_name": ["Cefixime", ""], "brand_name": ["Cefix", ""],
         "strength": ["200 mg", ""], "dosage_form": ["Capsule", ""],
@@ -86,31 +88,33 @@ with app.test_client() as client:
         "follow_up_notes": "",
     }, follow_redirects=True)
     check("create prescription draft", r.status_code == 200 and b"RX-" in r.data)
+    rx_id = re.search(r"/prescriptions/(\d+)", r.request.path).group(1)
 
     r = client.get("/prescriptions/")
     check("prescriptions list", r.status_code == 200 and b"RX-" in r.data)
 
-    r = client.post("/prescriptions/1/finalize", data={"csrf_token": csrf},
+    r = client.post(f"/prescriptions/{rx_id}/finalize", data={"csrf_token": csrf},
                     follow_redirects=True)
     check("finalize prescription",
           r.status_code == 200 and b"finalized" in r.data.lower())
 
-    r = client.post("/prescriptions/1/duplicate", data={"csrf_token": csrf},
+    r = client.post(f"/prescriptions/{rx_id}/duplicate", data={"csrf_token": csrf},
                     follow_redirects=True)
     check("duplicate prescription", r.status_code == 200 and b"RX-" in r.data)
 
-    r = client.get("/prescriptions/1/print")
+    r = client.get(f"/prescriptions/{rx_id}/print")
     check("print PDF", r.status_code == 200 and r.data[:4] == b"%PDF",
           f"({len(r.data)} bytes)")
 
     r = client.post("/follow-ups/new", data={
-        "csrf_token": csrf, "patient_id": "1", "prescription_id": "1",
+        "csrf_token": csrf, "patient_id": patient_id, "prescription_id": rx_id,
         "follow_up_date": "2026-10-15", "instructions": "Review",
         "doctor_notes": "", "status": "pending",
     }, follow_redirects=True)
     check("create follow-up", r.status_code == 200 and b"Follow-up" in r.data)
+    fu_id = re.search(r"/follow-ups/(\d+)/edit", r.data.decode()).group(1)
 
-    r = client.post("/follow-ups/1/status",
+    r = client.post(f"/follow-ups/{fu_id}/status",
                     data={"csrf_token": csrf, "status": "completed"},
                     follow_redirects=True)
     check("complete follow-up",

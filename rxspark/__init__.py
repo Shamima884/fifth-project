@@ -127,3 +127,9 @@ def create_app(config_class=Config) -> Flask:
 def init_db_app(app: Flask) -> None:
     with app.app_context():
         init_db()
+        # Demo mode: make sure the demo account exists on fresh databases
+        # (e.g. a new deployment). seed_demo() is idempotent — it exits
+        # immediately when the demo user is already present.
+        if app.config["DEMO_MODE"]:
+            from .seed import seed_demo
+            seed_demo()
