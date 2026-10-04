@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Dashboard</h1>
+    {% if doctor %}<div class="hint">{{ doctor.name }}{% if doctor.specialty %} · {{ doctor.specialty }}{% endif %}</div>{% endif %}
+  </div>
+  <div class="actions" style="margin:0;">
+    <a class="btn btn-primary" href="{{ url_for('patients.create') }}">+ New patient</a>
+    <a class="btn" href="{{ url_for('prescriptions.create') }}">+ New prescription</a>
+  </div>
+</div>
+
+<div class="grid grid-3">
+  <div class="card stat"><div class="num">{{ stats.active_patients }}</div>
+    <div class="lbl">Active patients</div></div>
+  <div class="card stat"><div class="num">{{ stats.prescriptions }}</div>
+    <div class="lbl">Prescriptions ({{ stats.rx_this_month }} this month)</div></div>
+  <div class="card stat"><div class="num">{{ stats.pending_followups }}</div>
+    <div class="lbl">Pending follow-ups{% if stats.todays_followups %} · {{ stats.todays_followups }} today{% endif %}</div></div>
+</div>
+
+<div class="grid grid-2" style="margin-top:16px;">
+  <div class="card">
+    <h2>Recent prescriptions</h2>
+    {% if recent_rx %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Number</th><th>Patient</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for r in recent_rx %}
+        <tr>
+          <td><a href="{{ url_for('prescriptions.detail', rx_id=r.id) }}">{{ r.prescription_number }}</a></td>
+          <td>{{ r.patient_name }}</td>
+          <td>{{ fmt_date(r.prescription_date) }}</td>
+          <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+    <p class="empty">No prescriptions yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Upcoming follow-ups</h2>
+    {% if upcoming %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Patient</th><th>Prescription</th></tr></thead>
+      <tbody>
+      {% for f in upcoming %}
+        <tr>
+          <td>{{ fmt_date(f.follow_up_date) }}</td>
+          <td>{{ f.patient_name }}</td>
+          <td>{{ f.prescription_number or '—' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+    <p class="empty">No pending follow-ups.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

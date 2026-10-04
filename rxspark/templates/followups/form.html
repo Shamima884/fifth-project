@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Edit follow-up{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Edit follow-up</h1>
+  <a class="btn" href="{{ url_for('followups.list_followups') }}">← Back to list</a>
+</div>
+
+<div class="card">
+  <p class="hint">Patient:
+    <a href="{{ url_for('patients.detail', patient_id=fu.patient_id) }}">{{ patient.name }}</a>
+    · scheduled for {{ fmt_date(fu.follow_up_date) }}</p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-row">
+      <div>
+        <label for="follow_up_date">Follow-up date</label>
+        <input type="date" id="follow_up_date" name="follow_up_date"
+               value="{{ fu.follow_up_date[:10] }}">
+      </div>
+      <div>
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          {% for s in statuses %}
+          <option value="{{ s }}" {% if fu.status == s %}selected{% endif %}>{{ s|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <label for="instructions">Instructions</label>
+    <textarea id="instructions" name="instructions">{{ fu.instructions }}</textarea>
+    <label for="doctor_notes">Doctor notes</label>
+    <textarea id="doctor_notes" name="doctor_notes">{{ fu.doctor_notes }}</textarea>
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Save changes</button>
+      <a class="btn" href="{{ url_for('followups.list_followups') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}AI Assistant{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>RxSpark AI Assistant</h1>
+    <div class="hint">Assistive only — verify everything against local guidelines.
+      Chat history stays in this session and is not saved.</div>
+  </div>
+  <form method="post" action="{{ url_for('ai.clear') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn" type="submit">Clear conversation</button>
+  </form>
+</div>
+
+<div class="card chat-box"
+     data-chat-url="{{ url_for('ai.send') }}"
+     data-csrf="{{ csrf_token() }}">
+  <div class="chat-log" id="chat-log">
+    {% if not messages %}
+    <div class="msg msg-assistant">Hello! I can help draft wording, explain drug
+      classes, or summarize notes. What are you working on?</div>
+    {% endif %}
+    {% for m in messages %}
+    <div class="msg {{ 'msg-user' if m.role == 'user' else 'msg-assistant' }}">{{ m.content }}</div>
+    {% endfor %}
+    <div class="thinking" id="thinking" hidden>Thinking…</div>
+  </div>
+  <form class="chat-input" id="chat-form" autocomplete="off">
+    <textarea id="chat-text" placeholder="Ask the assistant… (Enter to send, Shift+Enter for newline)"
+              maxlength="4000" required></textarea>
+    <button class="btn btn-primary" type="submit" id="chat-send">Send</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var box = document.querySelector('.chat-box');
+  var log = document.getElementById('chat-log');
+  var form = document.getElementById('chat-form');
+  var text = document.getElementById('chat-text');
+  var thinking = document.getElementById('thinking');
+  var sendBtn = document.getElementById('chat-send');
+
+  function addMsg(cls, content) {
+    var div = document.createElement('div');
+    div.className = 'msg ' + cls;
+    div.textContent = content;
+    log.insertBefore(div, thinking);
+    log.scrollTop = log.scrollHeight;
+    return div;
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var message = text.value.trim();
+    if (!message) { return; }
+    addMsg('msg-user', message);
+    text.value = '';
+    thinking.hidden = false;
+    sendBtn.disabled = true;
+    log.scrollTop = log.scrollHeight;
+
+    fetch(box.dataset.chatUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': box.dataset.csrf
+      },
+      body: JSON.stringify({ message: message })
+    })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (res.ok && res.d.reply) {
+          addMsg('msg-assistant', res.d.reply);
+        } else {
+          addMsg('msg-error', res.d.error || 'Request failed — please retry.');
+        }
+      })
+      .catch(function (err) { addMsg('msg-error', 'Network error: ' + err); })
+      .finally(function () {
+        thinking.hidden = true;
+        sendBtn.disabled = false;
+        text.focus();
+      });
+  });
+
+  text.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      form.requestSubmit();
+    }
+  });
+  log.scrollTop = log.scrollHeight;
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}{{ patient.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ patient.name }}
+      <span class="badge badge-{{ patient.status }}">{{ patient.status }}</span></h1>
+    <div class="hint">{{ patient.patient_code }}
+      {% if patient.age or patient.sex %} · {{ patient.age or '—' }} yrs / {{ patient.sex or '—' }}{% endif %}
+      {% if patient.blood_group %} · {{ patient.blood_group }}{% endif %}
+      {% if patient.mobile %} · {{ fmt_mobile(patient.mobile) }}{% endif %}
+    </div>
+  </div>
+  <div class="actions" style="margin:0;">
+    <a class="btn" href="{{ url_for('patients.edit', patient_id=patient.id) }}">Edit</a>
+    <a class="btn btn-primary"
+       href="{{ url_for('prescriptions.create', patient_id=patient.id) }}">+ Prescription</a>
+    {% if patient.status == 'active' %}
+    <form method="post" action="{{ url_for('patients.archive', patient_id=patient.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-danger" type="submit">Archive</button>
+    </form>
+    {% else %}
+    <form method="post" action="{{ url_for('patients.restore', patient_id=patient.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-primary" type="submit">Restore</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+{% if patient.allergies %}
+<div class="flash flash-error"><strong>Allergies:</strong> {{ patient.allergies }}</div>
+{% endif %}
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Patient details</h2>
+    <table>
+      <tr><th>Email</th><td>{{ patient.email or '—' }}</td></tr>
+      <tr><th>Address</th><td>{{ patient.address or '—' }}</td></tr>
+      <tr><th>Emergency</th><td>{{ patient.emergency_contact or '—' }}</td></tr>
+      <tr><th>History</th><td>{{ patient.medical_history or '—' }}</td></tr>
+      <tr><th>Previous meds</th><td>{{ patient.previous_medications or '—' }}</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Follow-ups</h2>
+    {% if followups %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for f in followups %}
+      <tr>
+        <td><a href="{{ url_for('followups.edit', fu_id=f.id) }}">{{ fmt_date(f.follow_up_date) }}</a></td>
+        <td><span class="badge badge-{{ f.status }}">{{ f.status }}</span></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}<p class="empty">No follow-ups.</p>{% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <h2>Visits</h2>
+  {% if visits %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Complaints</th><th>Diagnosis</th><th></th></tr></thead>
+    <tbody>
+    {% for v in visits %}
+      <tr>
+        <td>{{ fmt_date(v.visit_date) }}</td>
+        <td>{{ v.chief_complaints[:80] or '—' }}</td>
+        <td>{{ v.diagnosis[:80] or '—' }}</td>
+        <td><a class="btn btn-sm"
+               href="{{ url_for('patients.visit_edit', patient_id=patient.id, visit_id=v.id) }}">Edit</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<p class="empty">No visits recorded.</p>{% endif %}
+
+  <details style="margin-top:12px;">
+    <summary style="cursor:pointer; font-weight:600;">+ Record a visit</summary>
+    <form method="post" action="{{ url_for('patients.visit_create', patient_id=patient.id) }}" style="margin-top:10px;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-row">
+        <div>
+          <label for="visit_date">Visit date</label>
+          <input type="date" id="visit_date" name="visit_date">
+        </div>
+        <div>
+          <label for="chief_complaints">Chief complaints</label>
+          <input type="text" id="chief_complaints" name="chief_complaints">
+        </div>
+      </div>
+      <label for="diagnosis">Diagnosis</label>
+      <input type="text" id="diagnosis" name="diagnosis">
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Save visit</button>
+      </div>
+    </form>
+  </details>
+</div>
+
+<div class="card">
+  <h2>Prescriptions</h2>
+  {% if prescriptions %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Number</th><th>Date</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for r in prescriptions %}
+      <tr>
+        <td><a href="{{ url_for('prescriptions.detail', rx_id=r.id) }}">{{ r.prescription_number }}</a></td>
+        <td>{{ fmt_date(r.prescription_date) }}</td>
+        <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+        <td><a class="btn btn-sm" href="{{ url_for('prescriptions.print_pdf', rx_id=r.id) }}">PDF</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<p class="empty">No prescriptions yet.</p>{% endif %}
+</div>
+{% endblock %}

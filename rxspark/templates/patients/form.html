@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit patient' if patient else 'New patient' }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ 'Edit ' + patient.name if patient else 'New patient' }}</h1>
+  <a class="btn" href="{{ url_for('patients.list_patients') }}">← Back to list</a>
+</div>
+
+<div class="card">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <fieldset>
+      <legend>Identity</legend>
+      <div class="form-row">
+        <div>
+          <label for="name">Full name <span class="req">*</span></label>
+          <input type="text" id="name" name="name" required maxlength="150"
+                 value="{{ patient.name if patient else '' }}">
+        </div>
+        <div>
+          <label for="date_of_birth">Date of birth</label>
+          <input type="date" id="date_of_birth" name="date_of_birth"
+                 value="{{ patient.date_of_birth if patient and patient.date_of_birth else '' }}">
+        </div>
+        <div>
+          <label for="age">Age (years)</label>
+          <input type="number" id="age" name="age" min="0" max="130"
+                 value="{{ patient.age if patient and patient.age is not none else '' }}">
+        </div>
+        <div>
+          <label for="sex">Sex</label>
+          <select id="sex" name="sex">
+            <option value="">—</option>
+            {% for s in ('Male', 'Female', 'Other') %}
+            <option value="{{ s }}" {% if patient and patient.sex == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="blood_group">Blood group</label>
+          <select id="blood_group" name="blood_group">
+            {% for b in blood_groups %}
+            <option value="{{ b }}" {% if patient and patient.blood_group == b %}selected{% endif %}>{{ b or '—' }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Contact</legend>
+      <div class="form-row">
+        <div>
+          <label for="mobile">Mobile</label>
+          <input type="text" id="mobile" name="mobile" maxlength="20"
+                 placeholder="01712345678"
+                 value="{{ patient.mobile if patient else '' }}">
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" maxlength="254"
+                 value="{{ patient.email if patient else '' }}">
+        </div>
+        <div>
+          <label for="emergency_contact">Emergency contact</label>
+          <input type="text" id="emergency_contact" name="emergency_contact"
+                 maxlength="30"
+                 value="{{ patient.emergency_contact if patient else '' }}">
+        </div>
+      </div>
+      <label for="address">Address</label>
+      <input type="text" id="address" name="address" maxlength="300"
+             value="{{ patient.address if patient else '' }}">
+    </fieldset>
+
+    <fieldset>
+      <legend>Clinical</legend>
+      <label for="allergies">Allergies</label>
+      <textarea id="allergies" name="allergies">{{ patient.allergies if patient else '' }}</textarea>
+      <label for="medical_history">Medical history</label>
+      <textarea id="medical_history" name="medical_history">{{ patient.medical_history if patient else '' }}</textarea>
+      <label for="previous_medications">Previous medications</label>
+      <textarea id="previous_medications" name="previous_medications">{{ patient.previous_medications if patient else '' }}</textarea>
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">
+        {{ 'Save changes' if patient else 'Create patient' }}
+      </button>
+      <a class="btn" href="{{ url_for('patients.list_patients') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

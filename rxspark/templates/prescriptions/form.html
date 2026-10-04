@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit ' + rx.prescription_number if rx else 'New prescription' }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ 'Edit ' + rx.prescription_number if rx else 'New prescription' }}
+    {% if rx %}<span class="badge badge-{{ rx.status }}">{{ rx.status }}</span>{% endif %}
+  </h1>
+  <a class="btn" href="{{ url_for('prescriptions.list_prescriptions') }}">← Back to list</a>
+</div>
+
+<div class="card">
+  <form method="post" id="rx-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <fieldset>
+      <legend>Patient &amp; date</legend>
+      <div class="form-row">
+        <div>
+          <label for="patient_id">Patient <span class="req">*</span></label>
+          <select id="patient_id" name="patient_id" required
+                  data-new-url="{{ url_for('prescriptions.create') }}">
+            <option value="">— select —</option>
+            {% for p in patients %}
+            <option value="{{ p.id }}"
+              {% if (patient_id or (rx and rx.patient_id)) == p.id %}selected{% endif %}>
+              {{ p.name }} ({{ p.patient_code }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="visit_id">Linked visit</label>
+          <select id="visit_id" name="visit_id">
+            <option value="">— none —</option>
+            {% for v in visits %}
+            <option value="{{ v.id }}"
+              {% if rx and rx.visit_id == v.id %}selected{% endif %}>
+              {{ fmt_date(v.visit_date) }} — {{ (v.chief_complaints or 'visit')[:40] }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="prescription_date">Date</label>
+          <input type="date" id="prescription_date" name="prescription_date"
+                 value="{{ rx.prescription_date[:10] if rx else '' }}">
+        </div>
+        <div>
+          <label for="weight">Weight</label>
+          <input type="text" id="weight" name="weight" maxlength="20"
+                 placeholder="70 kg" value="{{ rx.weight if rx else '' }}">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Medicines <span class="req">*</span></legend>
+      <div class="table-wrap">
+      <table class="med-table">
+        <thead><tr>
+          <th style="min-width:150px;">Generic</th><th style="min-width:110px;">Brand</th>
+          <th style="min-width:90px;">Strength</th><th style="min-width:90px;">Form</th>
+          <th style="min-width:90px;">Dose</th><th style="min-width:110px;">Frequency</th>
+          <th style="min-width:90px;">Duration</th><th style="min-width:150px;">Instructions</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="med-rows">
+        {% if medicines %}
+          {% for m in medicines %}
+          <tr class="med-row">
+            <td><input type="text" name="generic_name" value="{{ m.generic_name_snapshot }}" list="med-suggest"></td>
+            <td><input type="text" name="brand_name" value="{{ m.brand_name_snapshot }}"></td>
+            <td><input type="text" name="strength" value="{{ m.strength_snapshot }}"></td>
+            <td><input type="text" name="dosage_form" value="{{ m.dosage_form_snapshot }}"></td>
+            <td><input type="text" name="dose" value="{{ m.dose }}"></td>
+            <td><input type="text" name="frequency" value="{{ m.frequency }}"></td>
+            <td><input type="text" name="duration" value="{{ m.duration }}"></td>
+            <td><input type="text" name="instructions" value="{{ m.instructions }}"></td>
+            <td><button type="button" class="btn btn-sm rm-row" title="Remove">×</button></td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          {% for _ in range(2) %}
+          <tr class="med-row">
+            <td><input type="text" name="generic_name" list="med-suggest"></td>
+            <td><input type="text" name="brand_name"></td>
+            <td><input type="text" name="strength"></td>
+            <td><input type="text" name="dosage_form"></td>
+            <td><input type="text" name="dose"></td>
+            <td><input type="text" name="frequency"></td>
+            <td><input type="text" name="duration"></td>
+            <td><input type="text" name="instructions"></td>
+            <td><button type="button" class="btn btn-sm rm-row" title="Remove">×</button></td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+        </tbody>
+      </table>
+      </div>
+      <datalist id="med-suggest">
+        {% for name in med_suggest %}<option value="{{ name }}">{% endfor %}
+      </datalist>
+      <div class="actions" style="margin-top:8px;">
+        <button type="button" class="btn" id="add-row">+ Add medicine row</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Advice &amp; follow-up</legend>
+      <label for="investigation">Investigation</label>
+      <textarea id="investigation" name="investigation">{{ rx.investigation if rx else '' }}</textarea>
+      <label for="advice">Advice</label>
+      <textarea id="advice" name="advice">{{ rx.advice if rx else '' }}</textarea>
+      <div class="form-row">
+        <div>
+          <label for="follow_up_date">Follow-up date</label>
+          <input type="date" id="follow_up_date" name="follow_up_date"
+                 value="{{ rx.follow_up_date[:10] if rx and rx.follow_up_date else '' }}">
+        </div>
+        <div>
+          <label for="follow_up_instructions">Follow-up instructions</label>
+          <input type="text" id="follow_up_instructions" name="follow_up_instructions"
+                 value="{{ rx.follow_up_instructions if rx else '' }}">
+        </div>
+      </div>
+      <label for="follow_up_notes">Follow-up notes</label>
+      <input type="text" id="follow_up_notes" name="follow_up_notes"
+             value="{{ rx.follow_up_notes if rx else '' }}">
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">
+        {{ 'Save draft' if rx else 'Create draft' }}
+      </button>
+      <a class="btn" href="{{ url_for('prescriptions.detail', rx_id=rx.id) if rx else url_for('prescriptions.list_prescriptions') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<template id="med-row-tpl">
+  <tr class="med-row">
+    <td><input type="text" name="generic_name" list="med-suggest"></td>
+    <td><input type="text" name="brand_name"></td>
+    <td><input type="text" name="strength"></td>
+    <td><input type="text" name="dosage_form"></td>
+    <td><input type="text" name="dose"></td>
+    <td><input type="text" name="frequency"></td>
+    <td><input type="text" name="duration"></td>
+    <td><input type="text" name="instructions"></td>
+    <td><button type="button" class="btn btn-sm rm-row" title="Remove">×</button></td>
+  </tr>
+</template>
+<script>
+(function () {
+  var tbody = document.getElementById('med-rows');
+  var tpl = document.getElementById('med-row-tpl');
+  document.getElementById('add-row').addEventListener('click', function () {
+    tbody.appendChild(tpl.content.cloneNode(true));
+  });
+  tbody.addEventListener('click', function (e) {
+    if (e.target.classList.contains('rm-row')) {
+      if (tbody.querySelectorAll('.med-row').length > 1) {
+        e.target.closest('tr').remove();
+      }
+    }
+  });
+  // Reload with ?patient_id= so the visit dropdown matches the patient.
+  var sel = document.getElementById('patient_id');
+  sel.addEventListener('change', function () {
+    if (sel.value) {
+      window.location = sel.dataset.newUrl + '?patient_id=' + sel.value;
+    }
+  });
+})();
+</script>
+{% endblock %}

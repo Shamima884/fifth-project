@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Prescriptions{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Prescriptions</h1>
+  <a class="btn btn-primary" href="{{ url_for('prescriptions.create') }}">+ New prescription</a>
+</div>
+
+<div class="card">
+  <form method="get" class="form-row" style="align-items:end;">
+    <div>
+      <label for="q">Search</label>
+      <input type="text" id="q" name="q" value="{{ q }}" placeholder="Number or patient">
+    </div>
+    <div>
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+        <option value="draft" {% if status == 'draft' %}selected{% endif %}>Draft</option>
+        <option value="finalized" {% if status == 'finalized' %}selected{% endif %}>Finalized</option>
+      </select>
+    </div>
+    <div><button class="btn" type="submit">Filter</button></div>
+  </form>
+</div>
+
+<div class="card">
+  {% if rows %}
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>Number</th><th>Patient</th><th>Date</th><th>Status</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr>
+        <td><a href="{{ url_for('prescriptions.detail', rx_id=r.id) }}">{{ r.prescription_number }}</a></td>
+        <td>{{ r.patient_name }}</td>
+        <td>{{ fmt_date(r.prescription_date) }}</td>
+        <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+        <td class="actions" style="margin:0;">
+          <a class="btn btn-sm" href="{{ url_for('prescriptions.print_pdf', rx_id=r.id) }}">PDF</a>
+          {% if r.status == 'draft' %}
+          <a class="btn btn-sm" href="{{ url_for('prescriptions.edit', rx_id=r.id) }}">Edit</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <p class="empty">No prescriptions found.</p>
+  {% endif %}
+</div>
+{% endblock %}

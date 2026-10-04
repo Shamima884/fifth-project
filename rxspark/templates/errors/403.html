@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Forbidden{% endblock %}
+{% block content %}
+<div class="card" style="text-align:center; padding:40px;">
+  <h1>403 — Access denied</h1>
+  <p class="empty">You do not have permission to view this resource.</p>
+  <p><a class="btn btn-primary" href="{{ url_for('main.dashboard') }}">Back to dashboard</a></p>
+</div>
+{% endblock %}

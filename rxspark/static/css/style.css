@@ -1,0 +1,151 @@
+/* RxSpark — application styles */
+:root {
+  --primary: #1d4ed8;
+  --primary-dark: #1e3a8a;
+  --bg: #f3f5f9;
+  --card: #ffffff;
+  --ink: #1f2937;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --danger: #b91c1c;
+  --ok: #047857;
+  --warn: #b45309;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* top bar */
+.topbar { background: var(--primary-dark); color: #fff; }
+.topbar-inner {
+  max-width: 1100px; margin: 0 auto; padding: 10px 16px;
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+}
+.brand { color: #fff; font-weight: 700; font-size: 18px; }
+.brand:hover { text-decoration: none; }
+.brand-mark { color: #93c5fd; }
+.nav { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-left: auto; }
+.nav a { color: #dbeafe; font-weight: 500; }
+.nav a:hover { color: #fff; text-decoration: none; }
+.inline { display: inline; }
+
+/* layout */
+.container { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+.footer {
+  max-width: 1100px; margin: 40px auto 20px; padding: 0 16px;
+  color: var(--muted); font-size: 13px;
+  display: flex; justify-content: space-between;
+}
+.page-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.page-head h1 { margin: 0; font-size: 22px; }
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; padding: 18px; margin-bottom: 18px;
+}
+.card h2 { margin-top: 0; font-size: 16px; }
+.grid { display: grid; gap: 14px; }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+/* flash messages */
+.flash {
+  padding: 10px 14px; border-radius: 8px; margin-bottom: 12px;
+  border: 1px solid var(--line); background: #fff;
+}
+.flash-error { background: #fef2f2; border-color: #fecaca; color: var(--danger); }
+.flash-warning { background: #fffbeb; border-color: #fde68a; color: var(--warn); }
+.flash-info { background: #eff6ff; border-color: #bfdbfe; color: var(--primary-dark); }
+.flash-success { background: #ecfdf5; border-color: #a7f3d0; color: var(--ok); }
+
+/* forms */
+label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: 13px; }
+label .req { color: var(--danger); }
+input[type=text], input[type=email], input[type=password], input[type=date],
+input[type=number], input[type=url], select, textarea {
+  width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1;
+  border-radius: 7px; font: inherit; background: #fff; color: var(--ink);
+}
+textarea { min-height: 84px; resize: vertical; }
+input:focus, select:focus, textarea:focus {
+  outline: 2px solid #bfdbfe; border-color: var(--primary);
+}
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+.hint { color: var(--muted); font-size: 12px; margin-top: 2px; }
+fieldset {
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 4px 14px 14px; margin: 0 0 16px;
+}
+legend { font-weight: 700; font-size: 13px; padding: 0 6px; }
+
+/* buttons */
+.btn {
+  display: inline-block; padding: 8px 14px; border-radius: 7px;
+  border: 1px solid var(--line); background: #fff; color: var(--ink);
+  font: inherit; font-weight: 600; cursor: pointer;
+}
+.btn:hover { background: #f8fafc; text-decoration: none; }
+.btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.btn-danger:hover { background: #991b1b; }
+.btn-ghost { background: transparent; border-color: #3b82f6; color: #dbeafe; }
+.btn-ghost:hover { background: rgba(255,255,255,.12); }
+.btn-sm { padding: 4px 9px; font-size: 13px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+
+/* tables */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { background: #f8fafc; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+tr:hover td { background: #f8fafc; }
+.table-wrap { overflow-x: auto; }
+.empty { color: var(--muted); padding: 18px 0; text-align: center; }
+
+/* badges & stats */
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 999px;
+  font-size: 12px; font-weight: 700;
+}
+.badge-demo { background: #fde68a; color: #92400e; }
+.badge-draft { background: #e5e7eb; color: #374151; }
+.badge-finalized, .badge-active, .badge-completed { background: #d1fae5; color: var(--ok); }
+.badge-archived, .badge-cancelled { background: #fee2e2; color: var(--danger); }
+.badge-pending { background: #fef3c7; color: var(--warn); }
+.stat { text-align: center; padding: 16px 10px; }
+.stat .num { font-size: 30px; font-weight: 800; color: var(--primary); }
+.stat .lbl { color: var(--muted); font-size: 13px; }
+
+/* auth pages */
+.auth-box { max-width: 430px; margin: 30px auto; }
+.auth-box .card { padding: 24px; }
+.auth-alt { text-align: center; margin-top: 12px; font-size: 14px; color: var(--muted); }
+
+/* prescription medicine rows */
+.med-table td { vertical-align: top; }
+.med-table input, .med-table select { padding: 6px 8px; font-size: 13px; }
+.med-table th { font-size: 11px; }
+
+/* AI chat */
+.chat-box {
+  display: flex; flex-direction: column; height: 62vh; min-height: 380px;
+}
+.chat-log { flex: 1; overflow-y: auto; padding: 6px 2px; }
+.msg { max-width: 82%; padding: 9px 13px; border-radius: 12px; margin: 8px 0; white-space: pre-wrap; }
+.msg-user { background: var(--primary); color: #fff; margin-left: auto; }
+.msg-assistant { background: #eef2ff; border: 1px solid #c7d2fe; }
+.msg-error { background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); }
+.chat-input { display: flex; gap: 8px; margin-top: 10px; }
+.chat-input textarea { flex: 1; min-height: 46px; max-height: 120px; }
+.thinking { color: var(--muted); font-style: italic; font-size: 13px; }
+

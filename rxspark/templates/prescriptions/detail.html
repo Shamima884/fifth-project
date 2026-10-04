@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}{{ rx.prescription_number }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ rx.prescription_number }}
+      <span class="badge badge-{{ rx.status }}">{{ rx.status }}</span></h1>
+    <div class="hint">
+      <a href="{{ url_for('patients.detail', patient_id=patient.id) }}">{{ patient.name }}</a>
+      · {{ patient.patient_code }} · {{ fmt_date(rx.prescription_date) }}
+      {% if rx.weight %} · {{ rx.weight }}{% endif %}
+      {% if rx.requires_reconfirmation %}
+      · <span class="badge badge-pending">needs reconfirmation</span>{% endif %}
+      {% if duplicate %} · copy of {{ duplicate.prescription_number }}{% endif %}
+    </div>
+  </div>
+  <div class="actions" style="margin:0;">
+    <a class="btn" href="{{ url_for('prescriptions.print_pdf', rx_id=rx.id) }}">Print PDF</a>
+    {% if rx.status == 'draft' %}
+      <a class="btn" href="{{ url_for('prescriptions.edit', rx_id=rx.id) }}">Edit</a>
+      <form method="post" action="{{ url_for('prescriptions.finalize', rx_id=rx.id) }}"
+            onsubmit="return confirm('Finalize this prescription? It becomes read-only.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-primary" type="submit">Finalize</button>
+      </form>
+    {% else %}
+      <form method="post" action="{{ url_for('prescriptions.duplicate', rx_id=rx.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn" type="submit">Duplicate as draft</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <h2>Medicines</h2>
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>#</th><th>Medicine</th><th>Dose</th><th>Frequency</th>
+      <th>Duration</th><th>Instructions</th>
+    </tr></thead>
+    <tbody>
+    {% for m in items %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>
+          <strong>{{ m.generic_name_snapshot }}</strong>
+          {% if m.strength_snapshot %} {{ m.strength_snapshot }}{% endif %}
+          {% if m.dosage_form_snapshot %} {{ m.dosage_form_snapshot }}{% endif %}
+          {% if m.brand_name_snapshot %}<br><span class="hint">Brand: {{ m.brand_name_snapshot }}</span>{% endif %}
+        </td>
+        <td>{{ m.dose or '—' }}</td>
+        <td>{{ m.frequency or '—' }}</td>
+        <td>{{ m.duration or '—' }}</td>
+        <td>{{ m.instructions or '—' }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="empty">No medicines.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Investigation</h2>
+    <p>{{ rx.investigation or '—' }}</p>
+    <h2>Advice</h2>
+    <p>{{ rx.advice or '—' }}</p>
+  </div>
+  <div class="card">
+    <h2>Follow-up plan</h2>
+    {% if rx.follow_up_date %}
+      <p><strong>{{ fmt_date(rx.follow_up_date) }}</strong><br>
+      {{ rx.follow_up_instructions or '' }}
+      {% if rx.follow_up_notes %}<br><span class="hint">{{ rx.follow_up_notes }}</span>{% endif %}</p>
+      <form method="post" action="{{ url_for('followups.create') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="patient_id" value="{{ patient.id }}">
+        <input type="hidden" name="prescription_id" value="{{ rx.id }}">
+        <input type="hidden" name="follow_up_date" value="{{ rx.follow_up_date[:10] }}">
+        <input type="hidden" name="instructions" value="{{ rx.follow_up_instructions }}">
+        <input type="hidden" name="doctor_notes" value="{{ rx.follow_up_notes }}">
+        <input type="hidden" name="next" value="{{ url_for('prescriptions.detail', rx_id=rx.id) }}">
+        <button class="btn btn-primary" type="submit">Schedule this follow-up</button>
+      </form>
+    {% else %}
+      <p class="empty">No follow-up date set.</p>
+    {% endif %}
+    <p class="hint">Created {{ fmt_dt(rx.created_at) }}
+      {% if rx.finalized_at %} · finalized {{ fmt_dt(rx.finalized_at) }}{% endif %}</p>
+  </div>
+</div>
+{% endblock %}

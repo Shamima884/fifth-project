@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+{% block content %}
+<div class="auth-box">
+  <div class="card">
+    <h1 style="margin-top:0; font-size:20px;">Create your account</h1>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="name">Full name <span class="req">*</span></label>
+      <input type="text" id="name" name="name" required maxlength="120" autofocus>
+      <label for="email">Email <span class="req">*</span></label>
+      <input type="email" id="email" name="email" required maxlength="254">
+      <label for="password">Password <span class="req">*</span></label>
+      <input type="password" id="password" name="password" required minlength="8">
+      <div class="hint">At least 8 characters.</div>
+      <label for="confirm">Confirm password <span class="req">*</span></label>
+      <input type="password" id="confirm" name="confirm" required minlength="8">
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Register</button>
+      </div>
+    </form>
+    <p class="auth-alt">Already registered?
+      <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+  </div>
+</div>
+{% endblock %}

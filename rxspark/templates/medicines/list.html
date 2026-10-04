@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Medicines{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Medicines</h1>
+  <a class="btn btn-primary" href="{{ url_for('medicines.create') }}">+ Add medicine</a>
+</div>
+
+<div class="card">
+  <form method="get" class="form-row" style="align-items:end;">
+    <div>
+      <label for="q">Search</label>
+      <input type="text" id="q" name="q" value="{{ q }}" placeholder="Generic or brand name">
+    </div>
+    <div>
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+        <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+      </select>
+    </div>
+    <div><button class="btn" type="submit">Filter</button></div>
+  </form>
+</div>
+
+<div class="card">
+  {% if rows %}
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>Generic</th><th>Brand</th><th>Strength</th><th>Form</th>
+      <th>Manufacturer</th><th>Status</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for m in rows %}
+      <tr>
+        <td>{{ m.generic_name }}</td>
+        <td>{{ m.brand_name or '—' }}</td>
+        <td>{{ m.strength or '—' }}</td>
+        <td>{{ m.dosage_form or '—' }}</td>
+        <td>{{ m.manufacturer or '—' }}</td>
+        <td><span class="badge badge-{{ m.status }}">{{ m.status }}</span></td>
+        <td><a class="btn btn-sm" href="{{ url_for('medicines.edit', medicine_id=m.id) }}">Edit</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <p class="empty">No medicines found.</p>
+  {% endif %}
+</div>
+{% endblock %}

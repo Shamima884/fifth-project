@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Server error{% endblock %}
+{% block content %}
+<div class="card" style="text-align:center; padding:40px;">
+  <h1>500 — Something went wrong</h1>
+  <p class="empty">The server hit an unexpected error. Please try again.</p>
+  <p><a class="btn btn-primary" href="{{ url_for('main.dashboard') }}">Back to dashboard</a></p>
+</div>
+{% endblock %}

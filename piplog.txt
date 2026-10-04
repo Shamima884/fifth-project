@@ -1,0 +1,3 @@
+﻿Requirement already satisfied: reportlab in C:\Users\USER\AppData\Local\Programs\Python\Python312\Lib\site-packages (5.0.1)
+Requirement already satisfied: pillow>=9.0.0 in C:\Users\USER\AppData\Local\Programs\Python\Python312\Lib\site-packages (from reportlab) (12.3.0)
+Requirement already satisfied: charset-normalizer in C:\Users\USER\AppData\Local\Programs\Python\Python312\Lib\site-packages (from reportlab) (3.5.1)

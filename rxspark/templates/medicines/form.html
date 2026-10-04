@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit medicine' if medicine else 'Add medicine' }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ 'Edit ' + medicine.generic_name if medicine else 'Add medicine' }}</h1>
+  <a class="btn" href="{{ url_for('medicines.list_medicines') }}">← Back to list</a>
+</div>
+
+<div class="card">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-row">
+      <div>
+        <label for="generic_name">Generic name <span class="req">*</span></label>
+        <input type="text" id="generic_name" name="generic_name" required maxlength="200"
+               value="{{ medicine.generic_name if medicine else '' }}">
+      </div>
+      <div>
+        <label for="brand_name">Brand name</label>
+        <input type="text" id="brand_name" name="brand_name" maxlength="200"
+               value="{{ medicine.brand_name if medicine else '' }}">
+      </div>
+      <div>
+        <label for="strength">Strength</label>
+        <input type="text" id="strength" name="strength" maxlength="80"
+               value="{{ medicine.strength if medicine else '' }}" placeholder="500 mg">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label for="dosage_form">Dosage form</label>
+        <select id="dosage_form" name="dosage_form">
+          <option value="">—</option>
+          {% for f in forms %}
+          <option value="{{ f }}" {% if medicine and medicine.dosage_form == f %}selected{% endif %}>{{ f }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="route">Route</label>
+        <select id="route" name="route">
+          {% for r in routes %}
+          <option value="{{ r }}" {% if medicine and medicine.route == r %}selected{% endif %}>{{ r }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="manufacturer">Manufacturer</label>
+        <input type="text" id="manufacturer" name="manufacturer" maxlength="200"
+               value="{{ medicine.manufacturer if medicine else '' }}">
+      </div>
+    </div>
+    {% if medicine %}
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="active" {% if medicine.status == 'active' %}selected{% endif %}>Active</option>
+      <option value="inactive" {% if medicine.status == 'inactive' %}selected{% endif %}>Inactive</option>
+    </select>
+    {% endif %}
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">
+        {{ 'Save changes' if medicine else 'Add medicine' }}
+      </button>
+      <a class="btn" href="{{ url_for('medicines.list_medicines') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

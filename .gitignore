@@ -1,0 +1,11 @@
+# Secrets and local data — never commit (AI key, session secret, SQLite DB, uploads)
+instance/
+
+__pycache__/
+*.py[cod]
+*.db
+*.db-wal
+*.db-shm
+.env
+venv/
+.venv/

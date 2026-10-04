@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Patients{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Patients</h1>
+  <a class="btn btn-primary" href="{{ url_for('patients.create') }}">+ New patient</a>
+</div>
+
+<div class="card">
+  <form method="get" class="form-row" style="align-items:end;">
+    <div>
+      <label for="q">Search</label>
+      <input type="text" id="q" name="q" value="{{ q }}" placeholder="Name, code or mobile">
+    </div>
+    <div>
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+        <option value="archived" {% if status == 'archived' %}selected{% endif %}>Archived</option>
+        <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+      </select>
+    </div>
+    <div><button class="btn" type="submit">Filter</button></div>
+  </form>
+</div>
+
+<div class="card">
+  {% if rows %}
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>Code</th><th>Name</th><th>Age/Sex</th><th>Mobile</th>
+      <th>Status</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for p in rows %}
+      <tr>
+        <td>{{ p.patient_code }}</td>
+        <td><a href="{{ url_for('patients.detail', patient_id=p.id) }}">{{ p.name }}</a></td>
+        <td>{{ p.age or '—' }} / {{ p.sex or '—' }}</td>
+        <td>{{ fmt_mobile(p.mobile) }}</td>
+        <td><span class="badge badge-{{ p.status }}">{{ p.status }}</span></td>
+        <td><a class="btn btn-sm" href="{{ url_for('patients.edit', patient_id=p.id) }}">Edit</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <p class="empty">No patients found. <a href="{{ url_for('patients.create') }}">Add the first one</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Edit visit{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Edit visit</h1>
+  <a class="btn" href="{{ url_for('patients.detail', patient_id=patient_id) }}">← Back to patient</a>
+</div>
+
+<div class="card">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-row">
+      <div>
+        <label for="visit_date">Visit date</label>
+        <input type="date" id="visit_date" name="visit_date" value="{{ visit.visit_date[:10] }}">
+      </div>
+      <div>
+        <label for="chief_complaints">Chief complaints</label>
+        <input type="text" id="chief_complaints" name="chief_complaints"
+               value="{{ visit.chief_complaints }}">
+      </div>
+    </div>
+    <label for="history">History</label>
+    <textarea id="history" name="history">{{ visit.history }}</textarea>
+    <label for="examination">Examination</label>
+    <textarea id="examination" name="examination">{{ visit.examination }}</textarea>
+    <label for="diagnosis">Diagnosis</label>
+    <textarea id="diagnosis" name="diagnosis">{{ visit.diagnosis }}</textarea>
+    <label for="investigation">Investigation</label>
+    <textarea id="investigation" name="investigation">{{ visit.investigation }}</textarea>
+    <label for="advice">Advice</label>
+    <textarea id="advice" name="advice">{{ visit.advice }}</textarea>
+    <label for="notes">Notes</label>
+    <textarea id="notes" name="notes">{{ visit.notes }}</textarea>
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Save visit</button>
+      <a class="btn" href="{{ url_for('patients.detail', patient_id=patient_id) }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

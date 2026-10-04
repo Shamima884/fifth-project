@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Follow-ups{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Follow-ups</h1>
+</div>
+
+<div class="card">
+  <form method="get" class="form-row" style="align-items:end;">
+    <div>
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        {% for s in statuses %}
+        <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s|capitalize }}</option>
+        {% endfor %}
+        <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+      </select>
+    </div>
+    <div><button class="btn" type="submit">Filter</button></div>
+  </form>
+</div>
+
+<div class="card">
+  {% if rows %}
+  <div class="table-wrap"><table>
+    <thead><tr>
+      <th>Date</th><th>Patient</th><th>Prescription</th><th>Instructions</th>
+      <th>Status</th><th></th>
+    </tr></thead>
+    <tbody>
+    {% for f in rows %}
+      <tr>
+        <td>{{ fmt_date(f.follow_up_date) }}</td>
+        <td><a href="{{ url_for('patients.detail', patient_id=f.patient_id) }}">{{ f.patient_name }}</a>
+          <span class="hint">{{ f.patient_code }}</span></td>
+        <td>
+          {% if f.prescription_number %}
+          <a href="{{ url_for('prescriptions.detail', rx_id=f.prescription_id) }}">{{ f.prescription_number }}</a>
+          {% else %}—{% endif %}
+        </td>
+        <td>{{ f.instructions[:60] or '—' }}</td>
+        <td><span class="badge badge-{{ f.status }}">{{ f.status }}</span></td>
+        <td class="actions" style="margin:0;">
+          <a class="btn btn-sm" href="{{ url_for('followups.edit', fu_id=f.id) }}">Edit</a>
+          {% if f.status == 'pending' %}
+          <form method="post" action="{{ url_for('followups.set_status', fu_id=f.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="status" value="completed">
+            <button class="btn btn-sm" type="submit">Done</button>
+          </form>
+          <form method="post" action="{{ url_for('followups.set_status', fu_id=f.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="status" value="cancelled">
+            <button class="btn btn-sm" type="submit">Cancel</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <p class="empty">No follow-ups here. Schedule one from a prescription page.</p>
+  {% endif %}
+</div>
+{% endblock %}
